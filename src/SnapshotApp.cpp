@@ -54,9 +54,13 @@ void SnapshotApp::setup()
 		"ShoulderRight", "ElbowRight", "WristRight", "HandRight", "HipLeft", "KneeLeft", "AnkleLeft", "FootLeft", "HipRight", "KneeRight",
 		"AnkleRight", "FootRight", "SpineShoulder", "HandTipLeft", "ThumbLeft", "HandTipRight", "ThumbRight" };
 	for (std::string s : joints) {
-		myfile << s + ".x,";
-		myfile << s + ".y,";
-		myfile << s + ".z,";
+		myfile << s + "_x,";
+		myfile << s + "_y,";
+		myfile << s + "_z,";
+		myfile << s + "_Orientation_w,";
+		myfile << s + "_Orientation_x,";
+		myfile << s + "_Orientation_y,";
+		myfile << s + "_Orientation_z,";
 	}
 	myfile << "\n";
 }
@@ -66,6 +70,7 @@ void SnapshotApp::keyDown( KeyEvent event )
 	char key = event.getChar();
 	if (key == 'a') {
 		snapshot = !snapshot;
+		myfile << "NEW SNAPSHOT\n";
 	}
 	else if (key == '1') {
 		myfile << "ANXIETY\n";
@@ -147,16 +152,20 @@ void SnapshotApp::draw()
 					if (joint.second.getTrackingState() == TrackingState::TrackingState_Tracked) {
 						vec2 pos(mDevice->mapCameraToDepth(joint.second.getPosition()));
 						if (snapshot) {
-							myfile << to_string(joint.first) + " " + to_string(joint.second.getPosition().x) + ",";
+							myfile << to_string(joint.second.getPosition().x) + ",";
 							myfile << to_string(joint.second.getPosition().y) + ",";
 							myfile << to_string(joint.second.getPosition().z) + ",";
+							myfile << to_string(joint.second.getOrientation().w) + ",";
+							myfile << to_string(joint.second.getOrientation().x) + ",";
+							myfile << to_string(joint.second.getOrientation().y) + ",";
+							myfile << to_string(joint.second.getOrientation().z) + ",";
 						}
 						gl::drawSolidCircle(pos, 5.0f, 32);
 						vec2 parent(mDevice->mapCameraToDepth(body.getJointMap().at(joint.second.getParentJoint()).getPosition()));
 						gl::drawLine(pos, parent);
 					}
 					else {
-						myfile << "N/A,N/A,N/A,";
+						myfile << "N/A,N/A,N/A,N/A,N/A,N/A,N/A,";
 					}
 				}
 				myfile << "\n";
